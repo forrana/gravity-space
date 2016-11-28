@@ -40,16 +40,16 @@ module Gravity.State {
             spaceShip1.body.setCollisionGroup(this.spaceShipCollisionGroup);
             spaceShip2.body.setCollisionGroup(this.spaceShipCollisionGroup);
             this.planet.body.setCollisionGroup(this.bulletsCollisionGroup);
-            this.planet.body.collides([this.spaceShipCollisionGroup]);
+            this.planet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
 
             spaceShip1.bullets.forEach((bullet) => {
               bullet.body.setCollisionGroup(this.bulletsCollisionGroup);
-              bullet.body.collides(this.spaceShipCollisionGroup);
+              bullet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
             });
 
             spaceShip2.bullets.forEach((bullet) => {
               bullet.body.setCollisionGroup(this.bulletsCollisionGroup);
-              bullet.body.collides(this.spaceShipCollisionGroup);
+              bullet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
             });
 
             spaceShip1.body.collides(
