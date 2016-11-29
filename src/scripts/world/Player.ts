@@ -31,7 +31,7 @@ module Gravity {
             if (this.trackRotation)
             {
                 this._rotatedPoint.set(this.trackedSprite.world.x + this.trackOffset.x, this.trackedSprite.world.y + this.trackOffset.y);
-                this._rotatedPoint.rotate(this.trackedSprite.world.x, this.trackedSprite.world.y, this.trackedSprite.rotation);
+                this._rotatedPoint.rotate(this.trackedSprite.world.x, this.trackedSprite.world.y, this.trackedSprite.rotation + this.game.math.degToRad(0));
 
                 if (this.fireFrom.width > 1)
                 {
@@ -77,7 +77,7 @@ module Gravity {
         var fromX = (this.fireFrom.width > 1) ? this.fireFrom.randomX : this.fireFrom.x;
         var fromY = (this.fireFrom.height > 1) ? this.fireFrom.randomY : this.fireFrom.y;
 
-        var angle = (this.trackRotation) ? this.trackedSprite.angle : this.fireAngle;
+        var angle = (this.trackRotation) ? this.trackedSprite.angle + this.fireAngle : this.fireAngle;
 
         //  The position (in world space) to fire the bullet towards, if set
         if (x !== undefined && y !== undefined)
@@ -232,7 +232,7 @@ module Gravity {
         playerCollisionGroup;
         weaponCollisionGroup;
         bullets;
-        health;
+        hitPoints;
         alive;
 
         constructor(game: Phaser.Game,
@@ -250,22 +250,25 @@ module Gravity {
             this.map = map;
             this.anchor.set(0.5);
 
-            this.health = new Phaser.Component.Health();
-            this.health.setHealth(49);
-            this.health.alive = true;
-            this.health.kill = () => {
-                this.alive = false;
-                this.health.alive = false;
-                this.position.x = 40;
-                this.position.y = 40;
-
-                return true;
-            }
+        //    this.health = new Phaser.Component.Health();
+            this.hitPoints = {current: 20, max: 20};
+            // this.health.alive = true;
+            // this.health.kill = () => {
+            //     this.health = new Phaser.Component.Health();
+            //     this.health.setHealth(49);
+            //     this.health.alive = true;
+            //
+            //     this.reset(game.rnd.integerInRange(20, 1000), game.rnd.integerInRange(20, 480));
+            //
+            //     return true;
+            // }
             this.alive = true;
 
-
             this.weapon = this.game.add.weapon(40, 'bullet');
+            this.weapon.offsetX = 0;
+            this.weapon.offsetY = 0;
             this.weapon.setBulletFrames(0, 80, true);
+            this.weapon.bulletAngleOffset = -90;
             this.weapon.bulletKillType = Phaser.Weapon.KILL_WORLD_BOUNDS;
             //  The speed at which the bullet is fired
             this.weapon.bulletSpeed = 400;
@@ -279,8 +282,8 @@ module Gravity {
             this.bullets.enableBody = true;
             this.bullets.physicsBodyType = Phaser.Physics.P2JS;
             this.bullets.createMultiple(100, 'bullet', 0, false);
-            this.bullets.setAll('anchor.x', 0.5);
-            this.bullets.setAll('anchor.y', 0.5);
+            this.bullets.setAll('anchor.x', 0);
+            this.bullets.setAll('anchor.y', 0);
 
             this.weapon.bullets = this.bullets;
             // this.bullets.setAll('body.fixedRotation', true);
@@ -385,8 +388,20 @@ module Gravity {
         }
 
         damage() {
-            console.warn('Hit!!!', this.health);
-            this.health.damage(1);
+            console.warn('Hit!!!', this.hitPoints);
+            if(this.hitPoints.current > 0) {
+                this.hitPoints.current -= 1;
+            } else {
+                this.hitPoints.current = this.hitPoints.max;
+                this.reset(this.game.rnd.integerInRange(20, 1000), this.game.rnd.integerInRange(20, 480));
+
+                this.bullets.createMultiple(100, 'bullet', 0, false);
+                this.bullets.setAll('anchor.x', 0.5);
+                this.bullets.setAll('anchor.y', 0.5);
+
+                this.weapon.bullets = this.bullets;
+
+            }
             return false;
         }
 

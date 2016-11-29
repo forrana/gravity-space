@@ -8,16 +8,24 @@ module Gravity.State {
         planet;
         fireButton;
         weapon;
-        spaceShipCollisionGroup;
+        spaceShipCollisionGroup1;
+        spaceShipCollisionGroup2;
         bulletsCollisionGroup;
+        bulletsCollisionGroup1;
+        bulletsCollisionGroup2;
+        planetCollisionGroup;
 
         create() {
             this.game.world.setBounds(0, 0, this.game.width, this.game.height);
             this.game.physics.startSystem(Phaser.Physics.P2JS);
             this.game.physics.p2.defaultRestitution = 0.8;
             this.game.physics.p2.setImpactEvents(true);
-            this.spaceShipCollisionGroup = this.game.physics.p2.createCollisionGroup();
+            this.spaceShipCollisionGroup1 = this.game.physics.p2.createCollisionGroup();
+            this.spaceShipCollisionGroup2 = this.game.physics.p2.createCollisionGroup();
             this.bulletsCollisionGroup = this.game.physics.p2.createCollisionGroup();
+            this.bulletsCollisionGroup1 = this.game.physics.p2.createCollisionGroup();
+            this.bulletsCollisionGroup2 = this.game.physics.p2.createCollisionGroup();
+            this.planetCollisionGroup = this.game.physics.p2.createCollisionGroup();
             this.game.physics.p2.updateBoundsCollisionGroup();
 
             let map = new Map(this.game, 0, 0, 1024, 576),
@@ -37,41 +45,54 @@ module Gravity.State {
 
             this.game.physics.p2.enable([spaceShip1, spaceShip2, planet]);
 
-            spaceShip1.body.setCollisionGroup(this.spaceShipCollisionGroup);
-            spaceShip2.body.setCollisionGroup(this.spaceShipCollisionGroup);
-            this.planet.body.setCollisionGroup(this.bulletsCollisionGroup);
-            this.planet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
+            spaceShip1.body.setCollisionGroup(this.spaceShipCollisionGroup1);
+            spaceShip2.body.setCollisionGroup(this.spaceShipCollisionGroup2);
+            this.planet.body.setCollisionGroup(this.planetCollisionGroup);
+            this.planet.body.collides([ this.spaceShipCollisionGroup1,
+                                        this.spaceShipCollisionGroup2,
+                                        this.bulletsCollisionGroup1,
+                                        this.bulletsCollisionGroup2,
+                                    ]);
 
             spaceShip1.bullets.forEach((bullet) => {
-              bullet.body.setCollisionGroup(this.bulletsCollisionGroup);
-              bullet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
+              bullet.body.setCollisionGroup(this.bulletsCollisionGroup1);
+              bullet.body.collides(
+                  [this.spaceShipCollisionGroup2, this.planetCollisionGroup, this.bulletsCollisionGroup2],
+                  bullet.kill,
+                  bullet
+              );
             });
 
             spaceShip2.bullets.forEach((bullet) => {
-              bullet.body.setCollisionGroup(this.bulletsCollisionGroup);
-              bullet.body.collides([this.spaceShipCollisionGroup, this.bulletsCollisionGroup]);
+              bullet.body.setCollisionGroup(this.bulletsCollisionGroup2);
+              bullet.body.collides(
+                  [this.spaceShipCollisionGroup1, this.planetCollisionGroup, this.bulletsCollisionGroup1],
+                  bullet.kill,
+                  bullet
+              );
             });
 
             spaceShip1.body.collides(
-                [this.bulletsCollisionGroup, this.spaceShipCollisionGroup],
+                [this.bulletsCollisionGroup2, this.spaceShipCollisionGroup2, this.planetCollisionGroup],
                 this.spaceShip1.damage,
                 this.spaceShip1
             );
+
             spaceShip2.body.collides(
-                [this.bulletsCollisionGroup, this.spaceShipCollisionGroup],
+                [this.bulletsCollisionGroup1, this.spaceShipCollisionGroup1, this.planetCollisionGroup],
                 this.spaceShip2.damage,
                 this.spaceShip2
             );
 
-            spaceShip1.setCollisionGroups(
-                this.spaceShipCollisionGroup,
-                this.bulletsCollisionGroup
-            );
-
-            spaceShip2.setCollisionGroups(
-                this.spaceShipCollisionGroup,
-                this.bulletsCollisionGroup
-            );
+            // spaceShip1.setCollisionGroups(
+            //     this.spaceShipCollisionGroup1,
+            //     this.bulletsCollisionGroup
+            // );
+            //
+            // spaceShip2.setCollisionGroups(
+            //     this.spaceShipCollisionGroup,
+            //     this.bulletsCollisionGroup
+            // );
 
 
             planet.body.static  = true;
