@@ -281,7 +281,7 @@ module Gravity {
             this.bullets = game.add.group();
             this.bullets.enableBody = true;
             this.bullets.physicsBodyType = Phaser.Physics.P2JS;
-            this.bullets.createMultiple(100, 'bullet', 0, false);
+            this.bullets.createMultiple(1000, 'bullet', 0, false);
             this.bullets.setAll('anchor.x', 0);
             this.bullets.setAll('anchor.y', 0);
 
@@ -394,13 +394,6 @@ module Gravity {
             } else {
                 this.hitPoints.current = this.hitPoints.max;
                 this.reset(this.game.rnd.integerInRange(20, 1000), this.game.rnd.integerInRange(20, 480));
-
-                this.bullets.createMultiple(100, 'bullet', 0, false);
-                this.bullets.setAll('anchor.x', 0.5);
-                this.bullets.setAll('anchor.y', 0.5);
-
-                this.weapon.bullets = this.bullets;
-
             }
             return false;
         }
