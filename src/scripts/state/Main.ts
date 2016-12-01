@@ -71,7 +71,7 @@ module Gravity.State {
                 var dy = ast_.y - this.planet.y;
 
                 this.accelerateToObject(ast_, this.planet,
-                this.getGravitationForce(6e6, {dx, dy})); //5.5e6
+                this.getGravitationForce(3e6, {dx, dy})); //5.5e6
         }
 
         update() {

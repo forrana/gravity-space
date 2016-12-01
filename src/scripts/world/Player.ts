@@ -114,16 +114,12 @@ module Gravity {
         }
 
         shoot() {
-            this.body.reverse(200);
+            this.currentThrust-=2.5
             this.weapon.fireAngle = this.body.angle - 90;
             this.weapon.fire();
         }
 
         keyControlls(keyScheme) {
-            this.currentThrust > 0 ?
-                this.body.thrust(this.currentThrust) :
-                this.body.reverse(Math.abs(this.currentThrust));
-
             if (keyScheme.left.isDown) {
                 this.body.rotateLeft(100);
             }
@@ -136,12 +132,12 @@ module Gravity {
 
             if (keyScheme.forward.isDown) {
                 this.currentThrust < this.maxThrust ?
-                    this.currentThrust+=1 : this.currentThrust += 0;
+                    this.currentThrust+=2.5 : this.currentThrust += 0;
                     console.log(this.currentThrust);
             }
             else if (keyScheme.backward.isDown) {
                 this.currentThrust > this.maxThrust*-1 ?
-                    this.currentThrust-=1 : this.currentThrust += 0;
+                    this.currentThrust-=2.5 : this.currentThrust += 0;
                     console.log(this.currentThrust);
             }
 
@@ -152,6 +148,15 @@ module Gravity {
         }
 
         update() {
+            if (this.currentThrust > 0){
+                this.body.thrust(this.currentThrust);
+                this.currentThrust -= 1;
+            } else {
+                this.body.reverse(Math.abs(this.currentThrust));
+                this.currentThrust += 1;
+            }
+
+
             switch(this.keyScheme){
                 case 'keyScheme1': this.keyControlls(this.keyScheme1); break;
                 case 'keyScheme2': this.keyControlls(this.keyScheme2); break;
