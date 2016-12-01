@@ -14,19 +14,7 @@ module Gravity {
             speed += Phaser.Math.between(-this.bulletSpeedVariance, this.bulletSpeedVariance);
         }
 
-        if (from)
-        {
-            if (this.fireFrom.width > 1)
-            {
-                this.fireFrom.centerOn(from.x, from.y);
-            }
-            else
-            {
-                this.fireFrom.x = from.x;
-                this.fireFrom.y = from.y;
-            }
-        }
-        else if (this.trackedSprite)
+        if (this.trackedSprite)
         {
             if (this.trackRotation)
             {
@@ -77,7 +65,7 @@ module Gravity {
         var fromX = (this.fireFrom.width > 1) ? this.fireFrom.randomX : this.fireFrom.x;
         var fromY = (this.fireFrom.height > 1) ? this.fireFrom.randomY : this.fireFrom.y;
 
-        var angle = (this.trackRotation) ? this.trackedSprite.angle + this.fireAngle : this.fireAngle;
+        var angle = (this.trackRotation) ? this.trackedSprite.angle : this.fireAngle; // this.fireAngle; // this.trackedSprite.angle
 
         //  The position (in world space) to fire the bullet towards, if set
         if (x !== undefined && y !== undefined)
@@ -106,8 +94,11 @@ module Gravity {
         else
         {
             moveX = Math.cos(this.game.math.degToRad(angle)) * speed;
-            moveY = Math.sin(this.game.math.degToRad(angle)) * speed;
+            moveY = Math.sin(this.game.math.degToRad(angle)) * speed ;
         }
+
+        fromX = fromX + 20*Math.cos(this.game.math.degToRad(angle));
+        fromY = fromY + 20*Math.sin(this.game.math.degToRad(angle));
 
         var bullet = null;
 
@@ -234,6 +225,8 @@ module Gravity {
         bullets;
         hitPoints;
         alive;
+        currentThrust;
+        maxThrust;
 
         constructor(game: Phaser.Game,
                     x: number,
@@ -244,6 +237,9 @@ module Gravity {
                     ) {
 
             super(game, x, y, model);
+            this.currentThrust = 20;
+            this.maxThrust = 500;
+
             this.keyScheme = keyScheme;
             // this.weapon = new RGBLaster(this.game, 40);
             this.scale.setTo(0.3, 0.3);
@@ -273,10 +269,12 @@ module Gravity {
             //  The speed at which the bullet is fired
             this.weapon.bulletSpeed = 400;
             //  Speed-up the rate of fire, allowing them to shoot 1 bullet every 50ms
-            this.weapon.fireRate = 50;
+            this.weapon.fireRate = 10;
             this.weapon.trackSprite(this, 0, 0, false);
             this.weapon.bulletKillDistance = 100;
             this.weapon.bulletRotateToVelocity = true;
+            this.weapon.bulletInheritSpriteSpeed
+            // this.weapon.bulletInheritSpriteSpeed = true;
 
             this.bullets = game.add.group();
             this.bullets.enableBody = true;
@@ -327,6 +325,10 @@ module Gravity {
         }
 
         keyScheme1() {
+            this.currentThrust > 0 ?
+                this.body.thrust(this.currentThrust) :
+                this.body.reverse(Math.abs(this.currentThrust));
+
             if (this.cursors.left.isDown) {
                 this.body.rotateLeft(100);
             }
@@ -338,10 +340,14 @@ module Gravity {
             }
 
             if (this.cursors.up.isDown) {
-                this.body.thrust(400);
+                this.currentThrust < this.maxThrust ?
+                    this.currentThrust+=10 : this.currentThrust += 0;
+                    console.log(this.currentThrust);
             }
             else if (this.cursors.down.isDown) {
-                this.body.reverse(400);
+                this.currentThrust > this.maxThrust*-1 ?
+                    this.currentThrust-=10 : this.currentThrust += 0;
+                    console.log(this.currentThrust);
             }
 
             if (this.fireButton.isDown)
@@ -354,6 +360,11 @@ module Gravity {
             }
         }
         keyScheme2(){
+            this.currentThrust > 0 ?
+                this.body.thrust(this.currentThrust) :
+                this.body.reverse(this.currentThrust*-1);
+
+
             if (this.leftKey.isDown) {
                 this.body.rotateLeft(100);
             }
@@ -365,10 +376,14 @@ module Gravity {
             }
 
             if (this.forward.isDown) {
-                this.body.thrust(400);
+                // this.body.thrust(650);
+                this.currentThrust < this.maxThrust ?
+                    this.currentThrust+=10 : this.currentThrust += 0;
             }
             else if (this.backward.isDown) {
-                this.body.reverse(400);
+                // this.currentThrust-=10;
+                this.currentThrust < this.maxThrust ?
+                    this.currentThrust-=10 : this.currentThrust += 0;
             }
 
             if (this.fireButton1.isDown)

@@ -2,29 +2,22 @@ module Gravity.State {
     export class Main extends Phaser.State {
 
         fpsText: Phaser.Text;
-        spaceShip1: Player;
-        spaceShip2: Player;
         constraint;
         planet;
-        fireButton;
-        weapon;
-        spaceShipCollisionGroup1;
-        spaceShipCollisionGroup2;
+        spaceShipCollisionGroup;
         bulletsCollisionGroup;
-        bulletsCollisionGroup1;
-        bulletsCollisionGroup2;
         planetCollisionGroup;
+        manager: PlayersManager;
 
         create() {
+            //Setting up phisics
             this.game.world.setBounds(0, 0, this.game.width, this.game.height);
             this.game.physics.startSystem(Phaser.Physics.P2JS);
             this.game.physics.p2.defaultRestitution = 0.8;
             this.game.physics.p2.setImpactEvents(true);
-            this.spaceShipCollisionGroup1 = this.game.physics.p2.createCollisionGroup();
-            this.spaceShipCollisionGroup2 = this.game.physics.p2.createCollisionGroup();
+
+            this.spaceShipCollisionGroup = this.game.physics.p2.createCollisionGroup();
             this.bulletsCollisionGroup = this.game.physics.p2.createCollisionGroup();
-            this.bulletsCollisionGroup1 = this.game.physics.p2.createCollisionGroup();
-            this.bulletsCollisionGroup2 = this.game.physics.p2.createCollisionGroup();
             this.planetCollisionGroup = this.game.physics.p2.createCollisionGroup();
             this.game.physics.p2.updateBoundsCollisionGroup();
 
@@ -33,67 +26,25 @@ module Gravity.State {
                                 this.game.width/2,
                                 this.game.height/2,
                                 map
-                            ),
-                spaceShip1 = new Player(this.game, 10, 10, map, 'spaceShip1', 'keyScheme1'),
-                spaceShip2 = new Player(this.game, 1000, 500, map, 'spaceShip2', 'keyScheme2');
+                            );
 
-            this.spaceShip1 = spaceShip1;
-            this.spaceShip2 = spaceShip2;
+            this.manager = new PlayersManager(this.game, map);
+            this.manager.addNewPlayer();
+            this.manager.addNewPlayer();
 
             this.planet = planet;
-            //this.weapon = weapon;
 
-            this.game.physics.p2.enable([spaceShip1, spaceShip2, planet]);
+            this.game.physics.p2.enable([...this.manager.players, planet]);
 
-            spaceShip1.body.setCollisionGroup(this.spaceShipCollisionGroup1);
-            spaceShip2.body.setCollisionGroup(this.spaceShipCollisionGroup2);
+            this.manager.setCollisionGroup(  this.spaceShipCollisionGroup,
+                                        this.bulletsCollisionGroup,
+                                        [this.planetCollisionGroup]
+                                    );
+
             this.planet.body.setCollisionGroup(this.planetCollisionGroup);
-            this.planet.body.collides([ this.spaceShipCollisionGroup1,
-                                        this.spaceShipCollisionGroup2,
-                                        this.bulletsCollisionGroup1,
-                                        this.bulletsCollisionGroup2,
+            this.planet.body.collides([ this.spaceShipCollisionGroup,
+                                        this.bulletsCollisionGroup,
                                     ]);
-
-            spaceShip1.bullets.forEach((bullet) => {
-              bullet.body.setCollisionGroup(this.bulletsCollisionGroup1);
-              bullet.body.collides(
-                  [this.spaceShipCollisionGroup2, this.planetCollisionGroup, this.bulletsCollisionGroup2],
-                  bullet.kill,
-                  bullet
-              );
-            });
-
-            spaceShip2.bullets.forEach((bullet) => {
-              bullet.body.setCollisionGroup(this.bulletsCollisionGroup2);
-              bullet.body.collides(
-                  [this.spaceShipCollisionGroup1, this.planetCollisionGroup, this.bulletsCollisionGroup1],
-                  bullet.kill,
-                  bullet
-              );
-            });
-
-            spaceShip1.body.collides(
-                [this.bulletsCollisionGroup2, this.spaceShipCollisionGroup2, this.planetCollisionGroup],
-                this.spaceShip1.damage,
-                this.spaceShip1
-            );
-
-            spaceShip2.body.collides(
-                [this.bulletsCollisionGroup1, this.spaceShipCollisionGroup1, this.planetCollisionGroup],
-                this.spaceShip2.damage,
-                this.spaceShip2
-            );
-
-            // spaceShip1.setCollisionGroups(
-            //     this.spaceShipCollisionGroup1,
-            //     this.bulletsCollisionGroup
-            // );
-            //
-            // spaceShip2.setCollisionGroups(
-            //     this.spaceShipCollisionGroup,
-            //     this.bulletsCollisionGroup
-            // );
-
 
             planet.body.static  = true;
 
@@ -120,12 +71,13 @@ module Gravity.State {
                 var dy = ast_.y - this.planet.y;
 
                 this.accelerateToObject(ast_, this.planet,
-                this.getGravitationForce(4e6, {dx, dy})); //5.5e6
+                this.getGravitationForce(6e6, {dx, dy})); //5.5e6
         }
 
         update() {
-            this.updateBody(this.spaceShip1);
-            this.updateBody(this.spaceShip2);
+            this.manager.players.forEach(
+                player => this.updateBody(player)
+            );
         }
     }
 }
