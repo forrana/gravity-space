@@ -4,7 +4,9 @@ var gulp = require('gulp'),
   concat = require('gulp-concat-sourcemap'),
   deploy = require('gulp-gh-pages'),
   del = require('del'),
-  runSequence = require('run-sequence');
+  runSequence = require('run-sequence'),
+  browserSync = require('browser-sync'),
+  nodemon = require('gulp-nodemon');
 
 var paths = {
   assets: 'src/assets/**/*',
@@ -102,8 +104,32 @@ gulp.task('deploy', function () {
     .pipe(deploy());
 });
 
+gulp.task('browser-sync', ['nodemon'], function() {
+	browserSync.init(null, {
+		proxy: "http://localhost:3000",
+        files: [paths.build + "/*.*"],
+        browser: "google chrome",
+        port: 7000,
+	});
+});
+
+gulp.task('nodemon', function (cb) {
+	var started = false;
+
+	return nodemon({
+		script: 'server/app.js'
+	}).on('start', function () {
+		// to avoid nodemon being started multiple times
+		// thanks @matthisk
+		if (!started) {
+			cb();
+			started = true;
+		}
+	});
+});
+
 gulp.task('default', function () {
-  runSequence('clean', ['inject', 'typescript', 'less', 'connect', 'watch'], 'open');
+  runSequence('clean', ['inject', 'typescript', 'less', 'browser-sync', 'watch'], 'open');
 });
 gulp.task('build', function () {
   return runSequence('clean', ['copy', 'minifyJs', 'minifyCss', 'processhtml']);

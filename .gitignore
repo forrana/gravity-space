@@ -7,3 +7,4 @@ vendor/
 build/
 dist/
 *.js
+!gulpfile.js

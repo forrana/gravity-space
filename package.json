@@ -1,9 +1,24 @@
 {
   "name": "gravity",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "compression": "~1.4.2",
+    "body-parser": "~1.10.2",
+    "cookie-parser": "~1.3.3",
+    "debug": "~2.1.1",
+    "express": "~4.11.1",
+    "jade": "~1.9.1",
+    "morgan": "~1.5.1",
+    "nodemon": "~1.3.7",
+    "serve-favicon": "~2.2.0",
+    "socket.io": "^1.3.5"
+  },
+  "scripts": {
+    "start": "nodemon ./server/app.js"
+  },
   "devDependencies": {
     "bower": "*",
+    "browser-sync": "^2.18.2",
     "del": "*",
     "gulp": "*",
     "gulp-concat": "*",
@@ -15,6 +30,7 @@
     "gulp-load-plugins": "*",
     "gulp-minify-css": "*",
     "gulp-minify-html": "*",
+    "gulp-nodemon": "^2.2.1",
     "gulp-open": "*",
     "gulp-processhtml": "*",
     "gulp-sourcemaps": "*",
@@ -22,7 +38,13 @@
     "gulp-uglifyjs": "*",
     "gulp-util": "*",
     "gulp-watch": "*",
+    "jasmine": "^2.5.2",
+    "karma": "^1.3.0",
+    "karma-jasmine": "^1.0.2",
+    "karma-typescript": "^2.1.4",
     "main-bower-files": "*",
-    "run-sequence": "*"
+    "nodemon": "^1.3.8",
+    "run-sequence": "*",
+    "typescript": "^2.0.10"
   }
 }

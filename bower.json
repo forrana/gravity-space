@@ -2,7 +2,7 @@
   "name": "gravity",
   "version": "0.0.0",
   "dependencies": {
-    "phaser-official": "^2.3.0"
+    "phaser-official": "^2.3.0",
+    "socket.io.client": "^1.0.0"
   }
 }
-
