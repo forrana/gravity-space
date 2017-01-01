@@ -10,6 +10,32 @@ module Gravity.State {
         manager: PlayersManager;
 
         create() {
+            // Socket initialization
+            this.game.socket = io();
+
+            this.game.socket.on('connect', () => {
+                console.info('Socket was connected');
+                this.game.userId = new Date();
+                this.manager.addNewPlayer();
+                this.initializePlayersPhisic();
+                this.game.socket.emit('add user', this.game.userId);
+            });
+
+            this.game.socket.on('user joined', (data) => {
+                this.manager.addNewPlayer(data.username);
+                this.initializePlayersPhisic();
+            })
+
+            this.game.socket.on('event', (data) => {
+                this.game.networkPlayers = this.game.networkPlayers || {};
+                this.game.networkPlayers[data.username] = this.game.networkPlayers[data.username] || [];
+                this.game.networkPlayers[data.username].push(data.message.action);
+            });
+
+            this.game.socket.on('disconnect', () => {
+                console.info('Socket was disconnected');
+            });
+
             //Setting up phisics
             this.game.world.setBounds(0, 0, this.game.width, this.game.height);
             this.game.physics.startSystem(Phaser.Physics.P2JS);
@@ -29,8 +55,6 @@ module Gravity.State {
                             );
 
             this.manager = new PlayersManager(this.game, map);
-            this.manager.addNewPlayer();
-            this.manager.addNewPlayer();
 
             this.planet = planet;
 
@@ -52,6 +76,15 @@ module Gravity.State {
                 20, 20, '', { font: '16px Arial', fill: '#ffffff' });
         }
 
+        initializePlayersPhisic() {
+            this.game.physics.p2.enable([...this.manager.players]);
+
+            this.manager.setCollisionGroup(  this.spaceShipCollisionGroup,
+                                        this.bulletsCollisionGroup,
+                                        [this.planetCollisionGroup]
+                                    );
+        }
+
         accelerateToObject(obj1, obj2, speed) {
             if (typeof speed === 'undefined') { speed = 60; }
             var angle = Math.atan2(obj2.y - obj1.y, obj2.x - obj1.x);
@@ -71,7 +104,7 @@ module Gravity.State {
                 var dy = ast_.y - this.planet.y;
 
                 this.accelerateToObject(ast_, this.planet,
-                this.getGravitationForce(3e6, {dx, dy})); //5.5e6
+                this.getGravitationForce(1e6, {dx, dy})); //5.5e6
         }
 
         update() {

@@ -3,22 +3,29 @@ module Gravity {
         game: Game;
         map: Map;
         playersArray: Array<Player>;
+        playersIds: Set<String>;
         playersLimit: number;
 
         constructor(game: Game, map: Map) {
             this.game = game;
             this.map = map
             this.playersArray = [];
+            this.playersIds = new Set();
         }
 
-        public addNewPlayer() {
-            let newPlayer = new Player(this.game,
+        public addNewPlayer(playerId: String) {
+            playerId = playerId || 'currentPlayer';
+            if(this.playersIds.has(playerId)) return;
+            let newPlayer = new Player(
+                                this.game,
                                 this.game.rnd.integerInRange(20, 1000),
                                 this.game.rnd.integerInRange(20, 480),
                                 this.map,
-                                `spaceShip${this.playersArray.length + 1}`,
-                                `keyScheme${this.playersArray.length + 1}`);
-
+                                playerId !== 'currentPlayer' ? 'spaceShip2' : 'spaceShip1',
+                                playerId !== 'currentPlayer' ? 'networkScheme' : 'keyScheme1',
+                                playerId
+                            );
+            this.playersIds.add(playerId);
             this.playersArray.push(newPlayer);
         }
 
