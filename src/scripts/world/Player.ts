@@ -43,7 +43,6 @@ module Gravity {
         keyScheme1;
         keyScheme2;
         networkScheme;
-        bullets;
         hitPoints: HitPoints;
         thrustEngine: ThrustEngine;
         userId;
@@ -72,7 +71,6 @@ module Gravity {
 
             this.keyScheme = keyScheme;
             this.weapon = new RGBLaster(this.game, this, this.game);
-            this.bullets = this.weapon.bullets;
 
             let cursors = game.input.keyboard.createCursorKeys(),
                 fireButton = this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
