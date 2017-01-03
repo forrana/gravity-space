@@ -38,7 +38,7 @@ module Gravity {
                     // Setting up collision group
                     player.body.setCollisionGroup(playerCollisionGroup);
                     // Setting up bullets collision groups
-                    player.bullets.forEach((bullet) => {
+                    player.weapon.bullets.forEach((bullet) => {
                       bullet.body.setCollisionGroup(bulletsCollisionGroup);
                       bullet.body.collides(
                           [     playerCollisionGroup,

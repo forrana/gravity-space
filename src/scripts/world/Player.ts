@@ -36,6 +36,46 @@ module Gravity {
         }
     }
 
+    class ControlManager {
+        keyScheme: string;
+        keyScheme1: object;
+        keyScheme2: object;
+        networkScheme: object;
+
+        constructor(keyScheme: string, game: Phaser.Game) {
+            this.keyScheme = keyScheme;
+
+            let cursors = game.input.keyboard.createCursorKeys(),
+                fireButton = game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
+                fireButton1 = game.input.keyboard.addKey(Phaser.KeyCode.SHIFT),
+                leftKey = game.input.keyboard.addKey(Phaser.KeyCode.A),
+                rightKey = game.input.keyboard.addKey(Phaser.KeyCode.D),
+                forward = game.input.keyboard.addKey(Phaser.KeyCode.W),
+                backward = game.input.keyboard.addKey(Phaser.KeyCode.S);
+
+            this.keyScheme1 = {
+                left: cursors.left,
+                right: cursors.right,
+                forward: cursors.up,
+                backward: cursors.down,
+                shoot: fireButton
+            }
+
+            this.keyScheme2 = {
+                left: leftKey,
+                right: rightKey,
+                forward: forward,
+                backward: backward,
+                shoot: fireButton1
+            }
+
+        }
+
+        getCurrentKeyScheme() {
+            return this[this.keyScheme];
+        }
+    }
+
     export class Player extends Phaser.Sprite {
         map : Gravity.Map;
         weapon;
@@ -43,6 +83,7 @@ module Gravity {
         keyScheme1;
         keyScheme2;
         networkScheme;
+        controlManager: ControlManager;
         hitPoints: HitPoints;
         thrustEngine: ThrustEngine;
         userId;
@@ -70,33 +111,12 @@ module Gravity {
             this.thrustEngine = new ThrustEngine(500, 20);
 
             this.keyScheme = keyScheme;
+            this.controlManager = new ControlManager(keyScheme, game);
             this.weapon = new RGBLaster(this.game, this, this.game);
 
-            let cursors = game.input.keyboard.createCursorKeys(),
-                fireButton = this.game.input.keyboard.addKey(Phaser.KeyCode.SPACEBAR),
-                fireButton1 = this.game.input.keyboard.addKey(Phaser.KeyCode.SHIFT),
-                leftKey = this.game.input.keyboard.addKey(Phaser.KeyCode.A),
-                rightKey = this.game.input.keyboard.addKey(Phaser.KeyCode.D),
-                forward = this.game.input.keyboard.addKey(Phaser.KeyCode.W),
-                backward = this.game.input.keyboard.addKey(Phaser.KeyCode.S);
-
-            this.keyScheme1 = {
-                left: cursors.left,
-                right: cursors.right,
-                forward: cursors.up,
-                backward: cursors.down,
-                shoot: fireButton
-            }
-
-            this.keyScheme2 = {
-                left: leftKey,
-                right: rightKey,
-                forward: forward,
-                backward: backward,
-                shoot: fireButton1
-            }
-
             game.add.existing(this);
+
+            this.defaultControlles = _.throttle(this.keyControlls.bind(this), 100, { 'trailing': false });
         }
 
         shoot() {
@@ -118,7 +138,7 @@ module Gravity {
         }
 
         keyControlls(keyScheme) {
-            keyScheme = keyScheme || this.keyScheme1;
+            keyScheme = this.controlManager.getCurrentKeyScheme();
             if (keyScheme.left.isDown) {
                 this.body.rotateLeft(100);
                 this.sendMessageToServer('turn', 'left');
@@ -167,8 +187,6 @@ module Gravity {
             // this.body.setZeroRotation();
         }
 
-        defaultControlles = _.throttle(this.keyControlls.bind(this), 100, { 'trailing': false });
-
         update() {
             if (this.thrustEngine.currentThrust > 0) {
                 this.body.thrust(this.thrustEngine.currentThrust);
@@ -179,8 +197,8 @@ module Gravity {
             }
 
             switch(this.keyScheme) {
-                case 'keyScheme1': this.defaultControlles(); break;
-                case 'keyScheme2': this.keyControlls(this.keyScheme2); break;
+                case 'keyScheme1':
+                case 'keyScheme2': this.defaultControlles(); break;
                 case 'networkScheme': this.networkControls(); break;
             }
             this.game.world.wrap(this, 16);
