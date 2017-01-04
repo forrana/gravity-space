@@ -1,16 +1,16 @@
 module Gravity {
     class HitPoints {
-        currentHitPoints: integer;
-        maxHitPoints: integer;
+        currentHitPoints: number;
+        maxHitPoints: number;
         isAlive: boolean
 
-        constructor(maxHitPoints: integer = 50) {
+        constructor(maxHitPoints: number = 50) {
             this.maxHitPoints = maxHitPoints;
             this.currentHitPoints = maxHitPoints;
             this.isAlive = true;
         }
 
-        hit (damageAmounte: integer = 1) {
+        hit (damageAmounte: number = 1) {
             this.isAlive ? this.currentHitPoints -= damageAmounte :
                             this.currentHitPoints = 0;
             if (this.currentHitPoints <= 0) this.isAlive = false;
@@ -18,15 +18,15 @@ module Gravity {
     }
 
     class ThrustEngine {
-        currentThrust: integer;
-        maxThrust: integer;
+        currentThrust: number;
+        maxThrust: number;
 
-        constructor(maxThrust: integer = 500, currentThrust: integer = 20) {
+        constructor(maxThrust: number = 500, currentThrust: number = 20) {
             this.maxThrust = maxThrust;
             this.currentThrust = currentThrust;
         }
 
-        changeThrust (thrustDiff: integer) {
+        changeThrust (thrustDiff: number) {
             this.currentThrust += thrustDiff;
             if (this.currentThrust >= this.maxThrust) {
                 this.currentThrust = this.maxThrust;
@@ -38,9 +38,8 @@ module Gravity {
 
     class ControlManager {
         keyScheme: string;
-        keyScheme1: object;
-        keyScheme2: object;
-        networkScheme: object;
+        keyScheme1: Object;
+        keyScheme2: Object;
 
         constructor(keyScheme: string, game: Phaser.Game) {
             this.keyScheme = keyScheme;
@@ -78,17 +77,14 @@ module Gravity {
 
     export class Player extends Phaser.Sprite {
         map : Gravity.Map;
-        weapon;
-        keyScheme;
-        keyScheme1;
-        keyScheme2;
-        networkScheme;
+        weapon: Phaser.Weapon;
+        keyScheme: String;
         controlManager: ControlManager;
         hitPoints: HitPoints;
         thrustEngine: ThrustEngine;
-        userId;
+        userId: string;
         defaultControlles;
-        isNetworkGame;
+        isNetworkGame: Boolean;
 
         constructor(game: Phaser.Game,
                     x: number,
@@ -210,7 +206,7 @@ module Gravity {
                 this.hitPoints.hit();
             } else {
                 this.hitPoints = new HitPoints();
-                this.reset(this.game.rnd.integerInRange(20, 1000), this.game.rnd.integerInRange(20, 480));
+                this.reset(this.game.rnd.numberInRange(20, 1000), this.game.rnd.numberInRange(20, 480));
             }
             return false;
         }

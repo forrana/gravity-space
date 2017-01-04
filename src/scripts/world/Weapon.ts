@@ -2,9 +2,9 @@ module Gravity {
     export class RGBLaster extends Phaser.Weapon {
         spaceShip;
         bullets;
-        fireRate = 200;
-        nextFire = 0;
-        game;
+        fireRate: number = 200;
+        nextFire: number = 0;
+        game: Phaser.Game;
 
         constructor(spriteSize, spaceShip, game) {
 
